@@ -1,22 +1,9 @@
-"""
-Voice Insights System
-======================
-Reads a transcribed agent-user conversation (JSON) and produces structured
-insights: summary, key issues, sentiment, risk flag, and urgency level.
-
-Run:
-    python voice_insights.py sample_input.json
-"""
-
 import json
 import re
 import sys
 import requests
 
-
-# ---------------------------------------------------------------------------
-# TASK 1: PREPROCESSING
-# ---------------------------------------------------------------------------
+#Pre-processing
 def preprocess_conversation(raw_data: dict) -> list:
     """
     Cleans and structures the raw conversation.
@@ -37,8 +24,8 @@ def preprocess_conversation(raw_data: dict) -> list:
         if text is None:
             text = ""
         text = text.strip()
-        text = re.sub(r"\s+", " ", text)          # collapse multiple spaces
-        text = re.sub(r"([?.!])\1+", r"\1", text)  # collapse "??" or "!!" etc.
+        text = re.sub(r"\s+", " ", text) 
+        text = re.sub(r"([?.!])\1+", r"\1", text)  
 
         if not text:
             # skip empty/blank turns instead of crashing
@@ -48,13 +35,7 @@ def preprocess_conversation(raw_data: dict) -> list:
 
     return cleaned
 
-
-# ---------------------------------------------------------------------------
-# TASK 2: NLP + PROMPT ENGINEERING (LLM extraction)
-# ---------------------------------------------------------------------------
-
-# This is the prompt that would be sent to an LLM (e.g. Claude / GPT) in a
-# real deployment. It asks for strict JSON output so it's easy to parse.
+#NLP + prompt Engineering
 LLM_PROMPT_TEMPLATE = """You are a clinical conversation analyst.
 Read the following agent-user conversation transcript and analyze it.
 
@@ -189,13 +170,7 @@ def call_llm_mock(cleaned_turns: list) -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
-# TASK 3: BASIC ML LOGIC — RULE-BASED URGENCY SCORING
-# ---------------------------------------------------------------------------
-
-# Logic: each keyword found in the user's speech adds points to a score.
-# Stronger/emergency words add more points than mild ones.
-# Score thresholds then map to Low / Medium / High urgency.
+#Basic ML Logic
 URGENCY_KEYWORDS = {
     "urgent": 3,
     "emergency": 3,
@@ -237,9 +212,7 @@ def compute_urgency(cleaned_turns: list) -> str:
         return "Low"
 
 
-# ---------------------------------------------------------------------------
-# TASK 4 (BONUS): AUDIO AWARENESS — pseudo-code / stub
-# ---------------------------------------------------------------------------
+
 def extract_audio_features(audio_path: str) -> dict:
     """
     PSEUDO-CODE for extracting audio features to enrich risk detection.
@@ -261,17 +234,6 @@ def extract_audio_features(audio_path: str) -> dict:
     cases where a user *sounds* distressed even if their words seem mild
     ("I'm fine" said in a shaky, high-pitched voice).
     """
-    # import librosa
-    # y, sr = librosa.load(audio_path)
-    #
-    # pitch, _ = librosa.piptrack(y=y, sr=sr)
-    # avg_pitch = pitch[pitch > 0].mean()
-    #
-    # energy = librosa.feature.rms(y=y).mean()
-    #
-    # tempo, _ = librosa.beat.beat_track(y=y, sr=sr)  # proxy for speaking rate
-    #
-    # return {"avg_pitch": avg_pitch, "energy": energy, "tempo": tempo}
 
     return {
         "avg_pitch": None,
@@ -280,10 +242,7 @@ def extract_audio_features(audio_path: str) -> dict:
         "note": "Stub only — no audio file processed. See docstring for real implementation plan.",
     }
 
-
-# ---------------------------------------------------------------------------
-# MAIN PIPELINE
-# ---------------------------------------------------------------------------
+#main
 def run_pipeline(raw_data: dict, show_prompt: bool = True) -> dict:
     cleaned = preprocess_conversation(raw_data)
 
