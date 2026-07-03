@@ -1,14 +1,3 @@
-"""
-Voice Insights System — Streamlit Frontend
-============================================
-Upload a transcribed conversation JSON, run it through the pipeline
-(preprocessing -> Mistral LLM extraction -> urgency scoring), and view
-the structured insights.
-
-Run:
-    streamlit run app.py
-"""
-
 import json
 
 import streamlit as st
@@ -21,9 +10,6 @@ from voice_insights import (
     compute_urgency,
 )
 
-# ---------------------------------------------------------------------------
-# PAGE CONFIG + LIGHT STYLING
-# ---------------------------------------------------------------------------
 st.set_page_config(page_title="Voice Insights System", page_icon="🎙️", layout="centered")
 
 st.markdown(
@@ -57,9 +43,6 @@ st.markdown(
 st.title("🎙️ Voice Insights System")
 st.caption("Turn a transcribed agent–user conversation into structured insights: summary, sentiment, risk & urgency.")
 
-# ---------------------------------------------------------------------------
-# INPUT
-# ---------------------------------------------------------------------------
 st.subheader("1. Provide the conversation")
 
 input_mode = st.radio("Input method", ["Upload JSON file", "Paste JSON"], horizontal=True)
@@ -89,9 +72,6 @@ show_prompt = st.checkbox("Show the exact prompt sent to the LLM", value=False)
 
 run_clicked = st.button("Analyze conversation", type="primary", disabled=raw_data is None)
 
-# ---------------------------------------------------------------------------
-# RUN PIPELINE
-# ---------------------------------------------------------------------------
 if run_clicked and raw_data is not None:
     cleaned = preprocess_conversation(raw_data)
 
@@ -124,10 +104,7 @@ if run_clicked and raw_data is not None:
         "risk_flag": llm_result["risk_flag"],
         "urgency": urgency,
     }
-
-    # -----------------------------------------------------------------
-    # DISPLAY
-    # -----------------------------------------------------------------
+ 
     st.subheader("2. Insights")
 
     st.markdown("**Summary**")
